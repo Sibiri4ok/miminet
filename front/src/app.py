@@ -1,4 +1,5 @@
 import sys
+import logging
 from datetime import datetime
 
 from flask import Flask, make_response, render_template
@@ -37,6 +38,7 @@ from miminet_host import (
     save_router_config,
     save_server_config,
     save_switch_config,
+    save_edge_config
 )
 from miminet_model import Network, db, init_db
 from miminet_network import (
@@ -82,6 +84,9 @@ from quiz.controller.image_controller import image_routes
 app = Flask(
     __name__, static_url_path="", static_folder="static", template_folder="templates"
 )
+logging.basicConfig(filename='/var/log/flask.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %('
+                                                                                  f'name)s %(threadName)s : %(message)s')
+logging.info("Эмуляция запущена")
 
 # SQLAlchimy config
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///" + SQLITE_DATABASE_NAME
@@ -222,6 +227,10 @@ admin = Admin(
     index_view=MiminetAdminIndexView(),
     name="Miminet Admin",
     template_mode="bootstrap4",
+)
+
+app.add_url_rule(
+    "/edge/save_config", methods=["GET", "POST"], view_func=save_edge_config
 )
 
 admin.add_view(TestView(Test, db.session))

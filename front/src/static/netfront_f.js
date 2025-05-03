@@ -334,9 +334,13 @@ const ShowEdgeConfig = function(edge_id, shared = 0){
 
     let edge_source = ed.data.source;
     let edge_target = ed.data.target;
+    let edge_loss = ed.data.loss_percentage || 0
 
     // Create form
     ConfigEdgeForm(edge_id);
+
+    // Add loss percentage info
+    ConfigEdgePercentage(edge_loss)
 
     // Add source and target info
     ConfigEdgeEndpoints(edge_source, edge_target);

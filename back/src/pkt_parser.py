@@ -1,6 +1,7 @@
 import os
 import random
 import string
+import  logging
 
 import dpkt
 from dpkt.pcap import Reader
@@ -66,6 +67,7 @@ def ip_packet_type(pkt) -> str:
 
 
 def arp_packet_type(pkt) -> str:
+    logging.info(f'{pkt=}')
     if isinstance(pkt.data, dpkt.arp.ARP):
         arp = pkt.data
         match arp.op:
@@ -92,6 +94,7 @@ def arp_packet_type(pkt) -> str:
 def create_pkt_animation(
     file1: str, file2: str, edge_id: str, e_source: str, e_target: str
 ):
+    logging.info(f"{e_source=},{e_target}")
     if not os.path.exists(file1) or not os.path.exists(file2):
         return None
 
@@ -129,6 +132,7 @@ def packet_parser(pcap1: Reader, edge_id: str, e_source: str, e_target: str):
                         "path": edge_id,
                         "source": e_source,
                         "target": e_target,
+                        "loss_percentage": 0
                     },
                     "timestamp": ts,
                 }
@@ -180,6 +184,7 @@ def packet_parser(pcap1: Reader, edge_id: str, e_source: str, e_target: str):
                         "path": edge_id,
                         "source": e_source,
                         "target": e_target,
+                        "loss_percentage": 0,
                     },
                     "timestamp": ts,
                 }
@@ -227,11 +232,12 @@ def packet_parser(pcap1: Reader, edge_id: str, e_source: str, e_target: str):
                         "path": edge_id,
                         "source": e_source,
                         "target": e_target,
+                        "loss_percentage": 0,
                     },
                     "timestamp": ts,
                 }
             )
-
+    logging.info(f"{pkts=}")
     return pkts
 
 

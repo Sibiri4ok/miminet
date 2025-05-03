@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 import ipaddress
 
@@ -362,6 +363,35 @@ def save_router_config():
 @login_required
 def save_server_config():
     return server.configure()
+
+
+@login_required
+def save_edge_config():
+    try:
+        edge_id = request.form['edge_id']
+        net_guid = request.form['net_guid']
+        loss_percent = request.form['edge_loss']
+
+        net = Network.query.filter(Network.guid == net_guid,
+                                   Network.author_id == current_user.id).first()
+
+        if not net:
+            return jsonify(status='error', message='Network not found'), 404
+
+        network_data = json.loads(net.network)
+
+        for edge in network_data['edges']:
+            if edge['data']['id'] == edge_id:
+                edge['data']['loss_percentage'] = loss_percent
+                break
+
+        logging.info(f"{network_data['edges']}")
+        net.network = json.dumps(network_data)
+        db.session.commit()
+
+        return jsonify(status='success')
+    except Exception as e:
+        return jsonify(status='error', message=str(e)), 500
 
 
 @login_required

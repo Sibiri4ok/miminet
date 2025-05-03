@@ -136,6 +136,7 @@ var PacketPlayer = (function () {
         }
 
         let pkts = traffic[getAnimationTrafficStep()];
+        console.log('pktss=', pkts);
 
         if (pkts.length == 0)
         {
@@ -172,6 +173,15 @@ var PacketPlayer = (function () {
             pp_item['data']['id'] = uid();
 
             let edge = network_cy.edges('[id = "' + pp_item['config']['path'] + '"]');
+
+            const edge_loss_percentage = edge.data('loss_percentage') || 0
+            const random = Math.random() * 100;
+
+            if (random <= edge_loss_percentage) {
+                console.log("Edge_data=", pp_item.data);
+                $('#NetworkStopButton').click();
+                return;
+            }
 
             if (!edge.source()) return;
 

@@ -239,19 +239,73 @@ const ConfigHubName = function (hostname) {
 const ConfigEdgeForm = function (edge_id) {
 
     var form = document.getElementById('config_edge_main_form_script').innerHTML;
+    var button = document.getElementById('config_edge_save_script').innerHTML;
 
     // Clear all child
     $(config_content_id).empty();
     $(config_content_save_tag).empty();
 
-    document.getElementById(config_content_save_id).style.display='none';
+    document.getElementById(config_content_save_id).style.display='block';
 
-    // Add new form
+    // Add new form and button
     $(config_content_id).append(form);
+    $(config_content_save_tag).append(button);
 
-    // Set host_id
+    // Set IDs
     $('#edge_id').val(edge_id);
     $('#net_guid').val(network_guid);
+
+    function handleEdgeClick(event) {
+        event.preventDefault();
+        let data = $('#config_edge_main_form').serialize();
+
+        const edge = edges.find(e => e.data.id === edge_id);
+
+        if (edge) {
+            edge.data.loss_percentage = parseInt($('#edge_loss').val()) || 0;
+        }
+
+        // Disable inputs during save
+        $("#config_edge_main_form :input").prop("disabled", true);
+
+        // Show loading spinner
+        $('#config_edge_main_form_submit_button').html(
+            '<span class="spinner-border spinner-border-sm" role="status"></span> Сохранение...'
+        );
+
+        // Server request
+        $.post('/edge/save_config', data)
+//            .done(function(response) {
+//                // Успешное сохранение
+//                let successMsg = '<div class="alert alert-success alert-dismissible fade show mt-2" role="alert">' +
+//                    'Настройки успешно сохранены' +
+//                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+//
+//                $(config_content_id).prepend(successMsg);
+//            })
+//            .fail(function(xhr) {
+//                // Ошибка сохранения
+//                let errorMsg = '<div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">' +
+//                    'Ошибка сохранения: ' + (xhr.responseJSON?.message || 'Неизвестная ошибка') +
+//                    '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+//
+//                $(config_content_id).prepend(errorMsg);
+//            })
+            .always(function() {
+                $("#edge_loss").prop("disabled", false);
+                $('#config_edge_main_form_submit_button').html('Сохранить');
+            });
+    }
+
+    $('#config_edge_main_form_submit_button').on('click', handleEdgeClick);
+}
+
+const ConfigEdgePercentage = function (edge_loss) {
+
+    var text = document.getElementById('config_edge_save_loss_script').innerHTML;
+
+    $(config_edge_main_form_id).prepend(text);
+    $('#edge_loss').val(edge_loss);
 }
 
 const ConfigEdgeEndpoints = function (edge_source, edge_target) {

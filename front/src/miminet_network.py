@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 import shutil
+import logging
 
 from flask import (
     flash,
@@ -190,6 +191,7 @@ def web_network_shared():
         db.session.commit()
 
     json_nodes = json.dumps(jnet["nodes"])
+    logging.info(f"{net=},{jnet['edges']=}, {jnet['packets']}")
 
     return render_template(
         "network_shared.html",
@@ -352,6 +354,8 @@ def post_nodes_edges():
     if request.method == "POST":
         nodes = request.json[0]
         edges = request.json[1]
+        loss_percentage = request.json
+        logging.info(f'{loss_percentage=}')
 
         jnet = json.loads(net.network)
         jnet["edges"] = edges
@@ -379,6 +383,7 @@ def post_nodes_edges():
         jnet["jobs"] = new_jobs
 
         net.network = json.dumps(jnet)
+        logging.info(f'{net.network=}, {net=}')
 
         # Remove all previous simulations
         sims = Simulate.query.filter(Simulate.network_id == net.id).all()
